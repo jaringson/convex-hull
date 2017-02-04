@@ -44,3 +44,11 @@ D:\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug
 D:\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\_2_convex_hull.FormMain.resources
 D:\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\_1_convex_hull.Properties.Resources.resources
 D:\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\convex-hull.csproj.GenerateResource.Cache
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\01-convex-hull.exe
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\01-convex-hull.pdb
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\bin\Debug\01-convex-hull.exe
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\bin\Debug\01-convex-hull.pdb
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\convex-hull.csprojResolveAssemblyReference.cache
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\_2_convex_hull.FormMain.resources
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\_1_convex_hull.Properties.Resources.resources
+C:\Users\Jaron\Documents\Visual Studio 2015\Projects\convex-hull\convex-hull\obj\Debug\convex-hull.csproj.GenerateResource.Cache
