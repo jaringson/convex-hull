@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using System.Linq;
 
 namespace _2_convex_hull
 {
@@ -39,8 +40,9 @@ namespace _2_convex_hull
         public void Solve(List<System.Drawing.PointF> pointList)
         {
             // Merge Operation is O(nlogn)
-            List<System.Drawing.PointF> sorted = mergesort(pointList);
-            
+            pointList.Sort((p1, p2) => (p1.X.CompareTo(p2.X)));
+            List<System.Drawing.PointF> sorted = pointList;
+
             // Convex Hull Operation and Drawing the Outer Convex Hull
             // Operation is O(nlogn) by using the master theorm
             // a = 2, b = 2, d = 1
@@ -55,16 +57,10 @@ namespace _2_convex_hull
                 srtd = order(srtd);
                 return srtd;
             }
-            //srtd.GetRange()
+
             List<System.Drawing.PointF> lf = srtd.GetRange(0, (srtd.Count + 1) / 2);
             List<System.Drawing.PointF> rt = srtd.GetRange((srtd.Count+1) / 2, srtd.Count/2);
-            /*for (int i = 0; i < srtd.Count; i++)
-            {
-                if (i < srtd.Count / 2) lf.Add(srtd[i]);
-                else rt.Add(srtd[i]);
-            }*/
-            //List<System.Drawing.PointF> d = recombine(convex(lf), convex(rt));
-            //draw(f_pen, d);
+            
             return recombine(convex(lf), convex(rt));
         }
 
@@ -273,10 +269,8 @@ namespace _2_convex_hull
             for(int i = 0; i < a.Count-1; i++)
             {
                 g.DrawLine(pen, a[i].X, a[i].Y, a[i+1].X, a[i+1].Y);
-                //System.Threading.Thread.Sleep(50);
             }
             g.DrawLine(pen, a[a.Count-1].X, a[a.Count - 1].Y, a[0].X, a[0].Y);
-            //System.Threading.Thread.Sleep(50);
         }
 
         public List<System.Drawing.PointF> mergesort(List<System.Drawing.PointF> a)
