@@ -9,8 +9,8 @@ namespace _2_convex_hull
     {
         System.Drawing.Graphics g;
         System.Windows.Forms.PictureBox pictureBoxView;
-        Pen right_pen = new Pen(Color.FromArgb(255, 255, 0, 0));
-        Pen left_pen = new Pen(Color.FromArgb(255, 0, 255, 0));
+        Pen r_pen = new Pen(Color.FromArgb(255, 255, 0, 0));
+        Pen g_pen = new Pen(Color.FromArgb(255, 0, 255, 0));
         Pen b_pen = new Pen(Color.FromArgb(255, 0, 0, 255));
         Pen a_pen = new Pen(Color.FromArgb(255, 0, 0, 0));
         Pen f_pen = new Pen(Color.FromArgb(255, 0, 255, 255));
@@ -33,44 +33,45 @@ namespace _2_convex_hull
             // Use this especially for debugging and to animate your algorithm slowly
             pictureBoxView.Refresh();
             System.Threading.Thread.Sleep(milliseconds);
+
         }
 
         public void Solve(List<System.Drawing.PointF> pointList)
         {
+            // Merge Operation is O(nlogn)
             List<System.Drawing.PointF> sorted = mergesort(pointList);
-            //pointList.Sort();
-            /*for(int i =0;i<10;i++)
-            {
-                Console.WriteLine(sorted[i].X);
-            }*/
-
-            draw(left_pen, convex(sorted));
-            //draw(sorted);          
             
+            // Convex Hull Operation and Drawing the Outer Convex Hull
+            // Operation is O(nlogn) by using the master theorm
+            // a = 2, b = 2, d = 1
+            draw(g_pen, convex(sorted));
         }
 
         public List<System.Drawing.PointF> convex(List<System.Drawing.PointF> srtd)
         {
+            // Convex Hull Reqursion. Base Case = # of Points < 4
             if(srtd.Count < 4)
             {
                 srtd = order(srtd);
-                //draw(left_pen,srtd);
                 return srtd;
             }
-            List<System.Drawing.PointF> lf = new List<System.Drawing.PointF>();
-            List<System.Drawing.PointF> rt = new List<System.Drawing.PointF>();
-            for (int i = 0; i < srtd.Count; i++)
+            //srtd.GetRange()
+            List<System.Drawing.PointF> lf = srtd.GetRange(0, (srtd.Count + 1) / 2);
+            List<System.Drawing.PointF> rt = srtd.GetRange((srtd.Count+1) / 2, srtd.Count/2);
+            /*for (int i = 0; i < srtd.Count; i++)
             {
                 if (i < srtd.Count / 2) lf.Add(srtd[i]);
                 else rt.Add(srtd[i]);
-            }
-            List<System.Drawing.PointF> d = recombine(convex(lf), convex(rt));
-            //draw2(new Pen(Color.FromArgb(255, rnd.Next(0,255), 0, rnd.Next(0, 255))), d);
-            return d;
+            }*/
+            //List<System.Drawing.PointF> d = recombine(convex(lf), convex(rt));
+            //draw(f_pen, d);
+            return recombine(convex(lf), convex(rt));
         }
 
         public List<System.Drawing.PointF> recombine(List<System.Drawing.PointF> lf, List<System.Drawing.PointF> rt)
         {
+            // Everything calculated in clock-wise direction with 0 index being farthest left.
+            // Need to find the farthest right position on the left hull.
             double greatest = 0.00;
             int index = 0;
             for (int i = 0; i < lf.Count; i++)
@@ -90,12 +91,16 @@ namespace _2_convex_hull
             System.Drawing.PointF r_t = lm_rt;
             System.Drawing.PointF r_b = lm_rt;
 
+            double slope1 = 0.0;
+            double slope2 = 0.0;
+
             index = 0;
-            while (true)  //Top
+            // The Next two While Loops find the Tangent inbetween the Two Convex Hulls
+            while (true)  // Starting in Middle working up to Top Tangent
             {
                 System.Drawing.PointF r_t_temp = r_t;
                 System.Drawing.PointF l_t_temp = l_t;
-                for (int i = index; i < rt.Count; i++)
+                for (int i = index; i < rt.Count; i++) // Left Side Pivot, Right side checking
                 {
                     if(i + 1 >= rt.Count)
                     {
@@ -104,10 +109,8 @@ namespace _2_convex_hull
                         r_t = rt[i];
                         break;
                     }
-                    double slope1 = (pivot.Y - rt[i].Y) / (1.0 * (pivot.X - rt[i].X));
-                    //draw(right_pen, new List<System.Drawing.PointF>() {pivot, rt[i] });
-                    double slope2 = (pivot.Y - rt[i + 1].Y) / (1.0 * (pivot.X - rt[i + 1].X));
-                    //draw(right_pen, new List<System.Drawing.PointF>() { pivot, rt[i+1] });
+                    slope1 = (pivot.Y - rt[i].Y) / (1.0 * (pivot.X - rt[i].X));
+                    slope2 = (pivot.Y - rt[i + 1].Y) / (1.0 * (pivot.X - rt[i + 1].X));
                     if (slope1 < slope2)
                     {
                         index = lf.IndexOf(pivot);
@@ -116,7 +119,7 @@ namespace _2_convex_hull
                         break;
                     }
                 }
-                for (int i = index; i > -1; i--)
+                for (int i = index; i > -1; i--) // Right Side Pivot, Left side checking
                 {
                     if(i - 1 <= -1)
                     {
@@ -125,10 +128,8 @@ namespace _2_convex_hull
                         l_t = lf[i];
                         break;
                     }
-                    double slope1 = (pivot.Y - lf[i].Y) / (1.0 * (pivot.X - lf[i].X));
-                    //draw(right_pen,new List<System.Drawing.PointF>() { pivot, lf[i] });
-                    double slope2 = (pivot.Y - lf[i - 1].Y) / (1.0 * (pivot.X - lf[i - 1].X));
-                    //draw(right_pen, new List<System.Drawing.PointF>() { pivot, lf[i-1] });
+                    slope1 = (pivot.Y - lf[i].Y) / (1.0 * (pivot.X - lf[i].X));
+                    slope2 = (pivot.Y - lf[i - 1].Y) / (1.0 * (pivot.X - lf[i - 1].X));
                     if (slope1 > slope2)
                     {
                         index = rt.IndexOf(pivot);
@@ -139,31 +140,28 @@ namespace _2_convex_hull
                 }
                 if (l_t_temp.X == l_t.X && r_t_temp.X == r_t.X)
                 {
-                    //draw(right_pen, new List<System.Drawing.PointF>() { l_t, r_t });
                     break;
                 }
             }
 
             pivot = rm_lf;
             index = rt.Count;
-            while (true)  //Bottom
+            while (true)  // Starting in Middle working down to Bottom Tangent
             {
                 System.Drawing.PointF r_b_temp = r_b;
                 System.Drawing.PointF l_b_temp = l_b;
-                for (int i = index; i > -1; i--)
+                for (int i = index; i > -1; i--) // Left Side Pivot, Right side checking
                 {
                     if (i - 1 <= -1)
                     {
                         i = rt.Count;
                     }
-                    double slope1 = 0.0;
-                    double slope2 = 0.0;
+                    slope1 = 0.0;
+                    slope2 = 0.0;
                     if (i == rt.Count)
                     {
                         slope1 = (pivot.Y - rt[0].Y) / (1.0 * (pivot.X - rt[0].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, rt[0] });
                         slope2 = (pivot.Y - rt[rt.Count -1].Y) / (1.0 * (pivot.X - rt[rt.Count - 1].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, rt[rt.Count - 1] });
                         if (slope1 > slope2)
                         {
                             index = lf.IndexOf(pivot);
@@ -175,9 +173,7 @@ namespace _2_convex_hull
                     else
                     {
                         slope1 = (pivot.Y - rt[i].Y) / (1.0 * (pivot.X - rt[i].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, rt[i] });
                         slope2 = (pivot.Y - rt[i - 1].Y) / (1.0 * (pivot.X - rt[i - 1].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, rt[i - 1] });
                         if (slope1 > slope2)
                         {
                             index = lf.IndexOf(pivot);
@@ -186,14 +182,11 @@ namespace _2_convex_hull
                             break;
                         }
                     }
-                    
-                    
-                    
                 }
-                for (int i = index; i < lf.Count; i++)
+                for (int i = index; i < lf.Count; i++) // Right Side Pivot, Left side checking
                 {
-                    double slope1 = 0.0;
-                    double slope2 = 0.0;
+                    slope1 = 0.0;
+                    slope2 = 0.0;
                     if (i + 1 >= lf.Count)
                     {
                         i = -1;
@@ -202,9 +195,7 @@ namespace _2_convex_hull
                     if(i == -1)
                     {
                         slope1 = (pivot.Y - lf[lf.Count - 1].Y) / (1.0 * (pivot.X - lf[lf.Count - 1].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, lf[lf.Count - 1] });
                         slope2 = (pivot.Y - lf[0].Y) / (1.0 * (pivot.X - lf[0].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, lf[0] });
                         if (slope1 < slope2)
                         {
                             index = rt.IndexOf(pivot);
@@ -213,14 +204,10 @@ namespace _2_convex_hull
                             break;
                         }
                     }
-
-
                     else
                     {
                         slope1 = (pivot.Y - lf[i].Y) / (1.0 * (pivot.X - lf[i].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, lf[i] });
                         slope2 = (pivot.Y - lf[i + 1].Y) / (1.0 * (pivot.X - lf[i + 1].X));
-                        //draw(b_pen, new List<System.Drawing.PointF>() { pivot, lf[i+0] });
                         if (slope1 < slope2)
                         {
                             index = rt.IndexOf(pivot);
@@ -229,23 +216,14 @@ namespace _2_convex_hull
                             break;
                         }
                     }
-
-                    
-
                 }
                 if (l_b_temp.X == l_b.X && r_b_temp.X == r_b.X)
                 {
-                    //draw(b_pen, new List<System.Drawing.PointF>() { l_b, r_b });
                     break;
                 }
             }
-            //draw(new List< System.Drawing.PointF >{ rm_lf,lm_rt});
-            /*Console.WriteLine("Here");
-            Console.WriteLine(lf.IndexOf(l_t));
-            Console.WriteLine(rt.IndexOf(r_t));
-            Console.WriteLine(rt.IndexOf(r_b));
-            Console.WriteLine(lf.IndexOf(l_b));*/
 
+            // Have to now Iterate over the two Hulls with Tangents to return new Hull.
             List<System.Drawing.PointF> combined = new List<System.Drawing.PointF>();
 
             for (int i = 0; i <= lf.IndexOf(l_t); i++)
@@ -274,9 +252,6 @@ namespace _2_convex_hull
                     combined.Add(lf[i]);
                 }
             }
-            
-         
-
             return combined;
         }
 
@@ -293,85 +268,55 @@ namespace _2_convex_hull
             else return new List<System.Drawing.PointF>() { a[0], a[2], a[1] };
         }
 
-        /*public void draw2(Pen pen, List<System.Drawing.PointF> a)
-        {
-            for (int i = 0; i < a.Count - 1; i++)
-            {
-                g.DrawLine(pen, a[i].X, a[i].Y, a[i + 1].X, a[i + 1].Y);
-                Pause(500);
-            }
-            
-
-        }*/
-
         public void draw(Pen pen,List<System.Drawing.PointF> a)
         {
             for(int i = 0; i < a.Count-1; i++)
             {
                 g.DrawLine(pen, a[i].X, a[i].Y, a[i+1].X, a[i+1].Y);
-                //Pause(500);
+                //System.Threading.Thread.Sleep(50);
             }
             g.DrawLine(pen, a[a.Count-1].X, a[a.Count - 1].Y, a[0].X, a[0].Y);
-            //Pause(500);
-
+            //System.Threading.Thread.Sleep(50);
         }
+
         public List<System.Drawing.PointF> mergesort(List<System.Drawing.PointF> a)
         {
-            if(a.Count > 1)
+            // Mergesort Function as Described on Page 50 in the Book
+            if (a.Count > 1)
             {
-                List<System.Drawing.PointF> x = new List<System.Drawing.PointF>();
-                List<System.Drawing.PointF> y = new List<System.Drawing.PointF>();
-                for (int i=0; i < a.Count; i++)
-                {
-                    if (i < a.Count / 2) x.Add(a[i]);
-                    else y.Add(a[i]);     
-                }
+                //List<System.Drawing.PointF> x = a.GetRange(0, (a.Count + 1) / 2);
+                //List<System.Drawing.PointF> y = a.GetRange((a.Count + 1) / 2,a.Count/2);
 
-                /*for (int i = 0; i < 5; i++)
-                {
-                    Console.WriteLine(x[i].X + "   " + y[i].X);
-                }
-                Console.WriteLine(""); 
-                Console.WriteLine("x: " + x.Count);
-                Console.WriteLine("y: " + y.Count); */ //Debugging purposes
-                return merge(mergesort(x),mergesort(y));
-
-            }
-            else
-            {
-                return a;
-            }
                 
+                return merge(mergesort(a.GetRange(0, (a.Count + 1) / 2)),mergesort(a.GetRange((a.Count + 1) / 2, a.Count / 2)));
+            }
+            else return a;
         }
+
         public List<System.Drawing.PointF> merge(List<System.Drawing.PointF> x, List<System.Drawing.PointF> y)
         {
+            // Merge Function as Described on Page 51 in the Book
             if (x.Count == 0) return y;
             if (y.Count == 0) return x;
             if (x[0].X <= y[0].X)
             {
-                List<System.Drawing.PointF> rtrn = new List<System.Drawing.PointF>();
-                rtrn.Add(x[0]);
-                x.RemoveAt(0);
-                List<System.Drawing.PointF> recursion = merge(x,y);
-                rtrn.AddRange(recursion);
+                List<System.Drawing.PointF> rtrn = x.GetRange(0,1);
+                //rtrn.Add(x[0]);
+                //x.RemoveAt(0);
+                //List<System.Drawing.PointF> recursion = merge(x.GetRange(1,x.Count -1),y);
+                rtrn.AddRange(merge(x.GetRange(1, x.Count - 1), y));
                 return rtrn;
             }
             else
             {
-                List<System.Drawing.PointF> rtrn = new List<System.Drawing.PointF>();
-                rtrn.Add(y[0]);
-                y.RemoveAt(0);
-                List<System.Drawing.PointF> recursion = merge(x, y);
-                rtrn.AddRange(recursion);
+                List<System.Drawing.PointF> rtrn = y.GetRange(0,1);
+                //rtrn.Add(y[0]);
+                //y.RemoveAt(0);
+                //List<System.Drawing.PointF> recursion = merge(x, y.GetRange(1,y.Count-1));
+                rtrn.AddRange(merge(x, y.GetRange(1, y.Count - 1)));
                 return rtrn;
+                //return {y[0],  };
             }
-
-             //x.AddRange(a.GetRange(0, a.Count / 2));
-             //y.AddRange(a.GetRange(a.Count / 2, a.Count / 2));
-            //return y;
-
-
-
         }
     }
 }
